@@ -114,12 +114,16 @@ def main():
 
     # Form for student details
     st.markdown("### Please fill in your details")
+    # Form for student details
+    st.markdown("### Please fill in your details", unsafe_allow_html=True)
     with st.form(key='student_form'):
-        name = st.text_input("Enter your name")
-        phone_number = st.text_input("Enter your phone number")
-        class_selected = st.selectbox("Select your class", ["Class 9", "Class 10", "Class 11", "Class 12"])
-        material_type = st.selectbox("Select material type", ["Notes", "Assignments", "Books"])
+        name = st.text_input("Enter your name", style='color: #333333;')
+        phone_number = st.text_input("Enter your phone number", style='color: #333333;')
+        class_selected = st.selectbox("Select your class", ["Class 9", "Class 10", "Class 11", "Class 12"], style='color: #333333;')
+        material_type = st.selectbox("Select material type", ["Notes", "Assignments", "Books"], style='color: #333333;')
         submit_button = st.form_submit_button(label='Submit')
+
+
 
     # Display materials based on class selection and validate phone number
     if submit_button:
