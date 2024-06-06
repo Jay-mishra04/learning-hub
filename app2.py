@@ -2,8 +2,6 @@ import streamlit as st
 import os
 import fitz  # PyMuPDF
 from PIL import Image
-import json
-from datetime import datetime
 
 # Function to list all PDF files in a directory
 def list_pdfs(directory):
@@ -16,23 +14,6 @@ def get_first_page_image(pdf_path):
     pix = page.get_pixmap()
     image = Image.frombytes("RGB", [pix.width, pix.height], pix.samples)
     return image
-
-# Function to validate the phone number
-def is_valid_phone_number(phone_number):
-    return phone_number.isdigit() and len(phone_number) == 10
-
-# Function to log data to a JSON file
-def log_data(filename, data):
-    if os.path.exists(filename):
-        with open(filename, 'r') as file:
-            logs = json.load(file)
-    else:
-        logs = []
-
-    logs.append(data)
-
-    with open(filename, 'w') as file:
-        json.dump(logs, file, indent=4)
 
 # Main function to create the Streamlit app
 def main():
@@ -66,13 +47,6 @@ def main():
         .sidebar-content {
             text-align: center;
         }
-        .input-section {
-            background-color: #ffffff;
-            padding: 20px;
-            border-radius: 5px;
-            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
-            margin-bottom: 20px;
-        }
         </style>
         """,
         unsafe_allow_html=True,
@@ -85,7 +59,7 @@ def main():
     st.markdown("<div class='subheader'>Enhance your knowledge with these materials 📚</div>", unsafe_allow_html=True)
 
     # Description
-    st.markdown("<div class='text'>This website is designed to provide educational resources. You can download notes by entering your details below. Make the best use of these materials and work hard to achieve your goals. 🌟</div>", unsafe_allow_html=True)
+    st.markdown("<div class='text'>This website is designed to provide educational resources. You can download notes by selecting your class and the material type below. Make the best use of these materials and work hard to achieve your goals. 🌟</div>", unsafe_allow_html=True)
 
     # Encouragement
     st.markdown("<div class='subheader'>Best of luck, my dear students! 🍀</div>", unsafe_allow_html=True)
@@ -112,99 +86,54 @@ def main():
     )
     st.sidebar.markdown("</div>", unsafe_allow_html=True)
 
-    # Form for student details
-    st.markdown("### Please fill in your details")
-    # Form for student details
-    st.markdown("### Please fill in your details", unsafe_allow_html=True)
-    with st.form(key='student_form'):
-        name = st.text_input("Enter your name", style='color: #333333;')
-        phone_number = st.text_input("Enter your phone number", style='color: #333333;')
-        class_selected = st.selectbox("Select your class", ["Class 9", "Class 10", "Class 11", "Class 12"], style='color: #333333;')
-        material_type = st.selectbox("Select material type", ["Notes", "Assignments", "Books"], style='color: #333333;')
-        submit_button = st.form_submit_button(label='Submit')
+    # Form for selecting class and material type
+    st.markdown("### Select your class and material type", unsafe_allow_html=True)
+    with st.form(key='material_form'):
+        class_selected = st.selectbox("Select your class", ["Class 9", "Class 10", "Class 11", "Class 12"], index=0, key="class_select")
+        material_type = st.selectbox("Select material type", ["Notes", "Assignments", "Books"], index=0, key="material_select")
+        submit_button = st.form_submit_button(label='Submit', key="material_submit")
 
-
-
-    # Display materials based on class selection and validate phone number
+    # Display materials based on class selection
     if submit_button:
-        if not is_valid_phone_number(phone_number):
-            st.error("You have entered an invalid phone number. Please enter a 10-digit phone number.")
+        st.write(f"Here are the {material_type.lower()} for {class_selected}:")
+        
+        # Directory based on class and material selection
+        class_directories = {
+            "Class 9": "class_9_materials",
+            "Class 10": "class_10_materials",
+            "Class 11": "class_11_materials",
+            "Class 12": "class_12_materials"
+        }
+        material_directories = {
+            "Notes": "notes",
+            "Assignments": "assignments",
+            "Books": "books"
+        }
+        directory = os.path.join(class_directories[class_selected], material_directories[material_type])
+        if not os.path.exists(directory):
+            st.write(f"Nothing is available here right now, come back later.")
         else:
-            st.write(f"Welcome, {name}! Here are the {material_type.lower()} for {class_selected}:")
-            
-            # Directory based on class and material selection
-            class_directories = {
-                "Class 9": "class_9_materials",
-                "Class 10": "class_10_materials",
-                "Class 11": "class_11_materials",
-                "Class 12": "class_12_materials"
-            }
-            material_directories = {
-                "Notes": "notes",
-                "Assignments": "assignments",
-                "Books": "books"
-            }
-            directory = os.path.join(class_directories[class_selected], material_directories[material_type])
-            if not os.path.exists(directory):
+            pdfs = list_pdfs(directory)
+            if not pdfs:
                 st.write(f"Nothing is available here right now, come back later.")
             else:
-                pdfs = list_pdfs(directory)
-                if not pdfs:
-                    st.write(f"Nothing is available here right now, come back later.")
-                else:
-                    # Display PDF previews and download links in a grid
-                    cols = st.columns(4)  # Create 4 columns
-                    for i, pdf in enumerate(pdfs):
-                        pdf_path = os.path.join(directory, pdf)
-                        image = get_first_page_image(pdf_path)
-                        # Resize image to fit in a column
-                        resized_image = image.resize((150, 200))
-                        
-                        with cols[i % 4]:  # Arrange images in grid
-                            st.image(resized_image, caption=pdf, use_column_width=True)
-                            with open(pdf_path, "rb") as file:
-                                btn = st.download_button(
-                                    label="Download",
-                                    data=file,
-                                    file_name=pdf,
-                                    mime='application/octet-stream'
-                                )
-            
-            # Log the user information
-            log_data(
-                os.path.join(os.path.dirname(os.path.abspath(__file__)), "download_logs.json"),
-                {
-                    "Name": name,
-                    "Phone Number": phone_number,
-                    "Class": class_selected,
-                    "Material Type": material_type,
-                    "Date and Time": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-                }
-            )
-            
-            st.success("Your details have been submitted.")
-
-    # Suggestion Box
-    st.markdown("<div class='subheader'>💡 We value your suggestions! 💡</div>", unsafe_allow_html=True)
-    with st.form(key='suggestion_form'):
-        sugg_name = st.text_input("Name")
-        sugg_class = st.selectbox("Class", ["Class 9", "Class 10", "Class 11", "Class 12"])
-        suggestion = st.text_area("Your Suggestion")
-        submit_suggestion = st.form_submit_button(label='Submit')
-
-        if submit_suggestion:
-            # Log the suggestions
-            log_data(
-                os.path.join(os.path.dirname(os.path.abspath(__file__)), "suggestions.json"),
-                {
-                    "Name": sugg_name,
-                    "Class": sugg_class,
-                    "Suggestion": suggestion,
-                    "Date and Time": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-                }
-            )
-            
-            st.success("Thank you for your suggestion!")
+                # Display PDF previews and download links in a grid
+                cols = st.columns(4)  # Create 4 columns
+                for i, pdf in enumerate(pdfs):
+                    pdf_path = os.path.join(directory, pdf)
+                    image = get_first_page_image(pdf_path)
+                    # Resize image to fit in a column
+                    resized_image = image.resize((150, 200))
+                    
+                    with cols[i % 4]:  # Arrange images in grid
+                        st.image(resized_image, caption=pdf, use_column_width=True)
+                        with open(pdf_path, "rb") as file:
+                            btn = st.download_button(
+                                label="Download",
+                                data=file,
+                                file_name=pdf,
+                                mime='application/octet-stream'
+                            )
 
 if __name__ == '__main__':
     main()
