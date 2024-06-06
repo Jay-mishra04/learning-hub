@@ -94,7 +94,7 @@ def main():
     st.sidebar.markdown("</div>", unsafe_allow_html=True)
 
     # Form for student details
-    st.markdown("<div class='dark-red-text'>### Please fill in your details</div>", unsafe_allow_html=True)
+    st.markdown("### Please fill in your details")
     with st.form(key='student_form'):
         class_selected = st.selectbox("Select your class", ["Class 9", "Class 10", "Class 11", "Class 12"])
         material_type = st.selectbox("Select material type", ["Notes", "Assignments", "Books"])
@@ -102,7 +102,7 @@ def main():
 
     # Display materials based on class selection
     if submit_button:
-        st.markdown(f"<div class='dark-green-text'>Here are the {material_type.lower()} for {class_selected}:</div>", unsafe_allow_html=True)
+        st.write(f"Here are the {material_type.lower()} for {class_selected}:")
         
         # Directory based on class and material selection
         class_directories = {
@@ -119,11 +119,11 @@ def main():
         directory = os.path.join(class_directories[class_selected], material_directories[material_type])
         
         if not os.path.exists(directory):
-            st.markdown("<div class='dark-red-text'>Nothing is available here right now, come back later.</div>", unsafe_allow_html=True)
+            st.write("Nothing is available here right now, come back later.")
         else:
             pdfs = list_pdfs(directory)
             if not pdfs:
-                st.markdown("<div class='dark-red-text'>Nothing is available here right now, come back later.</div>", unsafe_allow_html=True)
+                st.write("Nothing is available here right now, come back later.")
             else:
                 # Display PDF previews and download links in a grid
                 cols = st.columns(4)  # Create 4 columns
@@ -134,7 +134,7 @@ def main():
                     resized_image = image.resize((150, 200))
                     
                     with cols[i % 4]:  # Arrange images in grid
-                        st.image(resized_image, caption=f"<div class='dark-red-text'>{pdf}</div>", use_column_width=True, caption_html=True)
+                        st.image(resized_image, caption=pdf, use_column_width=True)
                         with open(pdf_path, "rb") as file:
                             st.download_button(
                                 label="Download",
