@@ -2,6 +2,8 @@ import streamlit as st
 import os
 import fitz  # PyMuPDF
 from PIL import Image
+import json
+from datetime import datetime
 
 # Function to list all PDF files in a directory
 def list_pdfs(directory):
@@ -18,6 +20,19 @@ def get_first_page_image(pdf_path):
 # Function to validate the phone number
 def is_valid_phone_number(phone_number):
     return phone_number.isdigit() and len(phone_number) == 10
+
+# Function to log data to a JSON file
+def log_data(filename, data):
+    if os.path.exists(filename):
+        with open(filename, 'r') as file:
+            logs = json.load(file)
+    else:
+        logs = []
+
+    logs.append(data)
+
+    with open(filename, 'w') as file:
+        json.dump(logs, file, indent=4)
 
 # Main function to create the Streamlit app
 def main():
@@ -50,6 +65,13 @@ def main():
         }
         .sidebar-content {
             text-align: center;
+        }
+        .input-section {
+            background-color: #ffffff;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
         }
         </style>
         """,
@@ -144,12 +166,17 @@ def main():
                                     mime='application/octet-stream'
                                 )
             
-            # Save the user information to a file
-            if not os.path.exists("download_logs.csv"):
-                with open("download_logs.csv", "w") as file:
-                    file.write("Name,Phone Number,Class,Material Type\n")
-            with open("download_logs.csv", "a") as file:
-                file.write(f"{name},{phone_number},{class_selected},{material_type}\n")
+            # Log the user information
+            log_data(
+                os.path.join(os.path.dirname(os.path.abspath(__file__)), "download_logs.json"),
+                {
+                    "Name": name,
+                    "Phone Number": phone_number,
+                    "Class": class_selected,
+                    "Material Type": material_type,
+                    "Date and Time": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                }
+            )
             
             st.success("Your details have been submitted.")
 
@@ -162,13 +189,16 @@ def main():
         submit_suggestion = st.form_submit_button(label='Submit')
 
         if submit_suggestion:
-            # Save the suggestions to a file
-            if not os.path.exists("suggestions.csv"):
-                with open("suggestions.csv", "w") as file:
-                    file.write("Name,Class,Suggestion\n")
-                    
-            with open("suggestions.csv", "a") as file:
-                file.write(f"{sugg_name},{sugg_class},{suggestion}\n")
+            # Log the suggestions
+            log_data(
+                os.path.join(os.path.dirname(os.path.abspath(__file__)), "suggestions.json"),
+                {
+                    "Name": sugg_name,
+                    "Class": sugg_class,
+                    "Suggestion": suggestion,
+                    "Date and Time": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                }
+            )
             
             st.success("Thank you for your suggestion!")
 
