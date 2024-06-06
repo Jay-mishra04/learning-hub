@@ -47,6 +47,13 @@ def main():
         .sidebar-content {
             text-align: center;
         }
+        .input-section {
+            background-color: #ffffff;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
         </style>
         """,
         unsafe_allow_html=True,
@@ -59,7 +66,7 @@ def main():
     st.markdown("<div class='subheader'>Enhance your knowledge with these materials 📚</div>", unsafe_allow_html=True)
 
     # Description
-    st.markdown("<div class='text'>This website is designed to provide educational resources. You can download notes by selecting your class and the material type below. Make the best use of these materials and work hard to achieve your goals. 🌟</div>", unsafe_allow_html=True)
+    st.markdown("<div class='text'>This website is designed to provide educational resources. You can download notes by entering your details below. Make the best use of these materials and work hard to achieve your goals. 🌟</div>", unsafe_allow_html=True)
 
     # Encouragement
     st.markdown("<div class='subheader'>Best of luck, my dear students! 🍀</div>", unsafe_allow_html=True)
@@ -86,16 +93,16 @@ def main():
     )
     st.sidebar.markdown("</div>", unsafe_allow_html=True)
 
-    # Form for selecting class and material type
-    st.markdown("### Select your class and material type", unsafe_allow_html=True)
-    with st.form(key='material_form'):
-        class_selected = st.selectbox("Select your class", ["Class 9", "Class 10", "Class 11", "Class 12"], index=0, key="class_select")
-        material_type = st.selectbox("Select material type", ["Notes", "Assignments", "Books"], index=0, key="material_select")
-        submit_button = st.form_submit_button(label='Submit', key="material_submit")
+    # Form for student details
+    st.markdown("### Please fill in your details")
+    with st.form(key='student_form'):
+        class_selected = st.selectbox("Select your class", ["Class 9", "Class 10", "Class 11", "Class 12"])
+        material_type = st.selectbox("Select material type", ["Notes", "Assignments", "Books"])
+        submit_button = st.form_submit_button(label='Submit')
 
-        # Display materials based on class selection
-        if submit_button:
-            st.write(f"Here are the {material_type.lower()} for {class_selected}:")
+    # Display materials based on class selection and validate phone number
+    if submit_button:
+            st.write(f"Welcome, {name}! Here are the {material_type.lower()} for {class_selected}:")
             
             # Directory based on class and material selection
             class_directories = {
@@ -134,6 +141,6 @@ def main():
                                     file_name=pdf,
                                     mime='application/octet-stream'
                                 )
-
+       
 if __name__ == '__main__':
     main()
