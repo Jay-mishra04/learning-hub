@@ -93,47 +93,47 @@ def main():
         material_type = st.selectbox("Select material type", ["Notes", "Assignments", "Books"], index=0, key="material_select")
         submit_button = st.form_submit_button(label='Submit', key="material_submit")
 
-    # Display materials based on class selection
-    if submit_button:
-        st.write(f"Here are the {material_type.lower()} for {class_selected}:")
-        
-        # Directory based on class and material selection
-        class_directories = {
-            "Class 9": "class_9_materials",
-            "Class 10": "class_10_materials",
-            "Class 11": "class_11_materials",
-            "Class 12": "class_12_materials"
-        }
-        material_directories = {
-            "Notes": "notes",
-            "Assignments": "assignments",
-            "Books": "books"
-        }
-        directory = os.path.join(class_directories[class_selected], material_directories[material_type])
-        if not os.path.exists(directory):
-            st.write(f"Nothing is available here right now, come back later.")
-        else:
-            pdfs = list_pdfs(directory)
-            if not pdfs:
+        # Display materials based on class selection
+        if submit_button:
+            st.write(f"Here are the {material_type.lower()} for {class_selected}:")
+            
+            # Directory based on class and material selection
+            class_directories = {
+                "Class 9": "class_9_materials",
+                "Class 10": "class_10_materials",
+                "Class 11": "class_11_materials",
+                "Class 12": "class_12_materials"
+            }
+            material_directories = {
+                "Notes": "notes",
+                "Assignments": "assignments",
+                "Books": "books"
+            }
+            directory = os.path.join(class_directories[class_selected], material_directories[material_type])
+            if not os.path.exists(directory):
                 st.write(f"Nothing is available here right now, come back later.")
             else:
-                # Display PDF previews and download links in a grid
-                cols = st.columns(4)  # Create 4 columns
-                for i, pdf in enumerate(pdfs):
-                    pdf_path = os.path.join(directory, pdf)
-                    image = get_first_page_image(pdf_path)
-                    # Resize image to fit in a column
-                    resized_image = image.resize((150, 200))
-                    
-                    with cols[i % 4]:  # Arrange images in grid
-                        st.image(resized_image, caption=pdf, use_column_width=True)
-                        with open(pdf_path, "rb") as file:
-                            btn = st.download_button(
-                                label="Download",
-                                data=file,
-                                file_name=pdf,
-                                mime='application/octet-stream'
-                            )
+                pdfs = list_pdfs(directory)
+                if not pdfs:
+                    st.write(f"Nothing is available here right now, come back later.")
+                else:
+                    # Display PDF previews and download links in a grid
+                    cols = st.columns(4)  # Create 4 columns
+                    for i, pdf in enumerate(pdfs):
+                        pdf_path = os.path.join(directory, pdf)
+                        image = get_first_page_image(pdf_path)
+                        # Resize image to fit in a column
+                        resized_image = image.resize((150, 200))
+                        
+                        with cols[i % 4]:  # Arrange images in grid
+                            st.image(resized_image, caption=pdf, use_column_width=True)
+                            with open(pdf_path, "rb") as file:
+                                btn = st.download_button(
+                                    label="Download",
+                                    data=file,
+                                    file_name=pdf,
+                                    mime='application/octet-stream'
+                                )
 
 if __name__ == '__main__':
     main()
