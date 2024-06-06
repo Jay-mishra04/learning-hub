@@ -91,21 +91,32 @@ def main():
     st.sidebar.markdown("</div>", unsafe_allow_html=True)
 
     # Form for student details
-    st.markdown("### Please fill in your details")
+    st.markdown("<span style='color:red; font-size:25px; font-weight:bold'>Please fill in your details</span>", unsafe_allow_html=True)
+
     with st.form(key='student_form'):
-        name = st.text_input("Enter your name")
-        phone_number = st.text_input("Enter your phone number")
-        class_selected = st.selectbox("Select your class", ["Class 9", "Class 10", "Class 11", "Class 12"])
-        material_type = st.selectbox("Select material type", ["Notes", "Assignments", "Books"])
+        st.markdown("<span style='color:blue; font-size:20px; font-weight:bold'>Enter your name</span>", unsafe_allow_html=True)
+        name = st.text_input("Enter your name", key='name_input')
+        
+        st.markdown("<span style='color:blue; font-size:20px; font-weight:bold'>Enter your phone number</span>", unsafe_allow_html=True)
+        phone_number = st.text_input("Enter your phone number", key='phone_input')
+        
+        st.markdown("<span style='color:blue; font-size:20px; font-weight:bold'>Select your class</span>", unsafe_allow_html=True)
+        class_selected = st.selectbox("Select your class", ["Class 9", "Class 10", "Class 11", "Class 12"], key='class_select')
+        
+        st.markdown("<span style='color:blue; font-size:20px; font-weight:bold'>Select material type</span>", unsafe_allow_html=True)
+        material_type = st.selectbox("Select material type", ["Notes", "Assignments", "Books"], key='material_select')
+        
         submit_button = st.form_submit_button(label='Submit')
+
+
 
     # Display materials based on class selection and validate phone number
     if submit_button:
         if not is_valid_phone_number(phone_number):
             st.error("You have entered an invalid phone number. Please enter a 10-digit phone number.")
         else:
-            st.write(f"Welcome, {name}! Here are the {material_type.lower()} for {class_selected}:")
-            
+            st.markdown(f"<span style='color:green; font-size:25px; font-weight:bold'>Welcome, {name}! Here are the {material_type.lower()} for {class_selected}:</span>", unsafe_allow_html=True)
+
             # Directory based on class and material selection
             class_directories = {
                 "Class 9": "class_9_materials",
@@ -120,11 +131,12 @@ def main():
             }
             directory = os.path.join(class_directories[class_selected], material_directories[material_type])
             if not os.path.exists(directory):
-                st.write(f"Nothing is available here right now, come back later.")
+                st.markdown("<span style='color:red'>Nothing is available here right now, come back later.</span>", unsafe_allow_html=True)
+
             else:
                 pdfs = list_pdfs(directory)
                 if not pdfs:
-                    st.write(f"Nothing is available here right now, come back later.")
+                    st.markdown("<span style='color:red'>Nothing is available here right now, come back later.</span>", unsafe_allow_html=True)
                 else:
                     # Display PDF previews and download links in a grid
                     cols = st.columns(4)  # Create 4 columns
@@ -135,7 +147,9 @@ def main():
                         resized_image = image.resize((150, 200))
                         
                         with cols[i % 4]:  # Arrange images in grid
+                            
                             st.image(resized_image, caption=pdf, use_column_width=True)
+
                             with open(pdf_path, "rb") as file:
                                 btn = st.download_button(
                                     label="Download",
@@ -152,25 +166,6 @@ def main():
                 file.write(f"{name},{phone_number},{class_selected},{material_type}\n")
             
             st.success("Your details have been submitted.")
-
-    # Suggestion Box
-    st.markdown("<div class='subheader'>💡 We value your suggestions! 💡</div>", unsafe_allow_html=True)
-    with st.form(key='suggestion_form'):
-        sugg_name = st.text_input("Name")
-        sugg_class = st.selectbox("Class", ["Class 9", "Class 10", "Class 11", "Class 12"])
-        suggestion = st.text_area("Your Suggestion")
-        submit_suggestion = st.form_submit_button(label='Submit')
-
-        if submit_suggestion:
-            # Save the suggestions to a file
-            if not os.path.exists("suggestions.csv"):
-                with open("suggestions.csv", "w") as file:
-                    file.write("Name,Class,Suggestion\n")
-                    
-            with open("suggestions.csv", "a") as file:
-                file.write(f"{sugg_name},{sugg_class},{suggestion}\n")
-            
-            st.success("Thank you for your suggestion!")
 
 if __name__ == '__main__':
     main()
