@@ -54,12 +54,6 @@ def main():
             box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
             margin-bottom: 20px;
         }
-        .dark-red-text {
-            color: darkred;
-        }
-        .dark-green-text {
-            color: darkgreen;
-        }
         </style>
         """,
         unsafe_allow_html=True,
@@ -95,16 +89,15 @@ def main():
         With over 8 years of experience in the teaching department, my absolute goal is to help my students excel in their studies and motivate them to achieve their dreams. I work tirelessly to ensure my students achieve good marks. If you have been my student, you know the dedication and methods I bring to the classroom.
 
         Thank you for visiting my website. Feel free to drop any suggestions or recommendations!
-        """,
-        unsafe_allow_html=True
+        """
     )
     st.sidebar.markdown("</div>", unsafe_allow_html=True)
 
     # Form for student details
     st.markdown("<div class='dark-red-text'>### Please fill in your details</div>", unsafe_allow_html=True)
     with st.form(key='student_form'):
-        class_selected = st.selectbox("Select your class", ["Class 9", "Class 10", "Class 11", "Class 12"], index=0)
-        material_type = st.selectbox("Select material type", ["Notes", "Assignments", "Books"], index=0)
+        class_selected = st.selectbox("Select your class", ["Class 9", "Class 10", "Class 11", "Class 12"])
+        material_type = st.selectbox("Select material type", ["Notes", "Assignments", "Books"])
         submit_button = st.form_submit_button(label='Submit')
 
     # Display materials based on class selection
